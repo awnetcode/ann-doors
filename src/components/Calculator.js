@@ -6,6 +6,8 @@ const Calculator = () => {
   const [income, setIncome] = useState(0);
   const [costs, setCosts] = useState(0);
   const [servicePrice, setServicePrice] = useState(0);
+  const [servicePriceCost, setServicePriceCost] = useState(0);
+  const [servicePriceNetto, setServicePriceNetto] = useState(0);
   const [costParameter, setCostParameter] = useState(0);
   const [employeePart, setEmployeePart] = useState(0.25);
 
@@ -16,16 +18,23 @@ const Calculator = () => {
     setCosts(Number(e.target.value));
   };
 
-  const getParameter = () =>{
-    setCostParameter((costs/income).toFixed(2))
-  }
+  const makeCalculation = () =>{
+    setCostParameter((costs/income).toFixed(2));
+    setServicePriceCost((servicePrice * costParameter).toFixed(2));
+    setServicePriceNetto((servicePrice - servicePriceCost));
+  };
+
+    const setEmployeePartValue = (e) => {
+    setEmployeePart((e.target.value));
+  };
+
 
   useEffect(()=>{
-    getParameter();
-  },[income, costs])
+    makeCalculation();
+  },[income, costs, servicePrice, servicePriceNetto])
 
   return (
-    <Paper className='calc-container'>
+    <Paper className='calc-container' elevation='8'>
       <Box sx={{
         p:'24px',
         display:'flex',
@@ -34,27 +43,32 @@ const Calculator = () => {
       }}>
         <TextField
           label="Przychód"
+          type='number'
           variant="standard"
           onChange={setIncomeValue}
         />
         <TextField
           label="Koszty"
+          type='number'
           variant="standard"
           onChange={setCostValue}
         />
         <Typography>Współczynnik: {income === 0 || costs === 0 ? '' : costParameter}</Typography>
         <TextField
          label="Montaż"
+         type='number'
          variant='standard'
          onChange={(e)=>{setServicePrice(e.target.value)}}
          />
-         <Typography>Za montaż netto: {servicePrice === 0 ? '' : servicePrice*costParameter}</Typography>
+         <Typography>Za montaż netto: {servicePrice === 0 ? '' : servicePriceNetto }</Typography>
          <TextField
          label="Dla pracownika:"
+         type='number'
          variant='standard'
          value={employeePart}
+         onChange={setEmployeePartValue}
          />
-         <Typography>Na rękę: {servicePrice === 0 ? '' : servicePrice * costParameter * employeePart}</Typography>
+         <Typography>Na rękę: {servicePrice === 0 ||  isNaN(employeePart) ? '' : (servicePriceNetto * employeePart)}</Typography>
       </Box>
     </Paper>
   );
